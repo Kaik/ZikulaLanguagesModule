@@ -114,7 +114,7 @@ class AdminController extends AbstractController
         
         $request->attributes->set('_legacy', true); // forces template to render inside old theme
         return $this->render('ZikulaLanguagesModule:Admin:newlanguage.html.twig',
-            array('test' => 'tescik'
+            array('language_select' => \ZLanguage::countryMap()
             ));
     }    
 }
