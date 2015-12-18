@@ -100,4 +100,21 @@ class AdminController extends AbstractController
                 'symfony' => $symfony
             ));
     }
+    
+    /**
+     * @Route("/newlanguage", options={"expose"=true})
+     *
+     * @param Request $request
+     *
+     * @return AjaxResponse
+     */
+    public function newlanguageAction(Request $request)
+    {
+        
+        
+        $request->attributes->set('_legacy', true); // forces template to render inside old theme
+        return $this->render('ZikulaLanguagesModule:Admin:newlanguage.html.twig',
+            array('test' => 'tescik'
+            ));
+    }    
 }

@@ -1,7 +1,5 @@
 {#{ render(controller('ZikulaAdminModule:AdminInterface:header')) }#}
-{% stylesheets '@ZikulaLanguagesModule/Resources/public/css/*' filter='cssrewrite' %}
-<link rel="stylesheet" href="{{ asset_url }}"/>
-{% endstylesheets %}
+{{ pageAddAsset('stylesheet', zasset('@ZikulaLanguagesModule:css/style.css')) }}
 <div class="container-fluid">
     <div class="row">
         <h2><i class="fa fa-flag"></i> {{ __('Multilingual settings') }}</h2>
@@ -59,18 +57,17 @@
                                         </li>
                                     {% endfor %}
                                     <li role="presentation" class="list-group-item">
-                                        <a class="btn btn-info btn-sm" href="{#{ path('zikulabreakitmodule_translations_index', {_locale:language_installed}) }#}">{{ __('Add new language') }}</a>
+                                        <a class="btn btn-info btn-sm" id="language_manager_add_language" href="{#{ path('zikulabreakitmodule_translations_index', {_locale:language_installed}) }#}">{{ __('Add new language') }}</a>
                                     </li>
                                     </ul>	
 
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                            <h3 class="panel-title">{{ __('Route translation settings') }}</h3>
-                                        </div>
-                                        <div class="panel-body">
-                                            Panel content
-                                        </div>
-                                    </div> 	  
+                                    <ul class="list-group">                 
+                                        <li role="presentation" class="list-group-item list-group-item-info">
+                                            <h3 class="panel-title"> {{ __('Route translation settings') }}</h3>
+                                        </li>
+
+
+                                    </ul>                	  
 
                                     <div class="col-md-12">{{ form_widget(form.save,
 					{'attr': {'class': 'btn btn-info pull-right'}}) }}
@@ -115,9 +112,11 @@
                                                                     <tr><td> {{ __('Timeformat')}} :</td> <td> {{ localeData.getTimeformat() }}</td></tr>
                                                                     <tr><td> {{ __('Grouping')}} :</td> <td> {#{ localeData.getGrouping() }#}</td></tr>
                                                                     <tr><td> {{ __('Mon grouping')}} :</td> <td> {#{ localeData.getMon_grouping() }#}</td></tr>								
-                                                                </table>	
+                                                                </table>
+                                                                <div class="col-md-12">
+                                                                    <a class="btn btn-warning btn-sm" id="language_manager_edit_language" href="{#{ path('zikulabreakitmodule_translations_index', {_locale:language_installed}) }#}">{{ __('Edit language settings') }}</a>
+                                                                </div>
                                                             </div>
-
                                                             <div class="col-md-6">			    			    
                                                                 <table class="table">
                                                                     <tr>
@@ -142,7 +141,5 @@
                                     </div>
                                     </div>
                                     {# jquery autoincluded see \JCSSUtil::prepareJavascripts #}
-                                    {% javascripts '@ZikulaLanguagesModule/Resources/public/js/*' %}
-                                    <script type="text/javascript" src="{{ asset_url }}"></script>
-                                    {% endjavascripts %}
+                                    {{ pageAddAsset('javascript', zasset('@ZikulaLanguagesModule:js/Zikula.Languages.Manager.js')) }} 
                                     {#{ render(controller('ZikulaAdminModule:AdminInterface:footer')) }#}
