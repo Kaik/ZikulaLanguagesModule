@@ -1,0 +1,3 @@
+zikulalanguagesmodule:
+    resource: "@ZikulaLanguagesModule/Controller"
+    type:     annotation

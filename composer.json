@@ -1,0 +1,36 @@
+{
+	"name" : "zikula/languages-module",
+	"version" : "1.0.0",
+	"description" : "Provides languages manager.",
+	"type" : "zikula-module",
+	"license" : "LGPL-3.0+",
+	"authors" : [{
+			"name" : "Zikula Development Team",
+			"homepage" : "http://zikula.org"
+		}
+	],
+	"autoload" : {
+		"psr-4" : {
+			"Zikula\\LanguagesModule\\" : ""
+		}
+	},
+	"require" : {
+		"php" : ">5.4.3"
+	},
+	"extra" : {
+		"zikula" : {
+			"core-compatibility" : ">=1.4.2",
+			"class" : "Zikula\\LanguagesModule\\ZikulaLanguagesModule",
+			"displayname" : "Languages",
+			"url" : "languages",
+			"capabilities" : {
+				"admin" : {
+					"route" : "zikulalanguagesmodule_admin_config"
+				}
+			},
+			"securityschema" : {
+				"ZikulaLanguagesModule::" : "::"
+			}
+		}
+	}
+}

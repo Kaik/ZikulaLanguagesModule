@@ -1,0 +1,148 @@
+{#{ render(controller('ZikulaAdminModule:AdminInterface:header')) }#}
+{% stylesheets '@ZikulaLanguagesModule/Resources/public/css/*' filter='cssrewrite' %}
+<link rel="stylesheet" href="{{ asset_url }}"/>
+{% endstylesheets %}
+<div class="container-fluid">
+    <div class="row">
+        <h2><i class="fa fa-flag"></i> {{ __('Multilingual settings') }}</h2>
+        {{ showflashes() }}       
+        {% form_theme form with ['bootstrap_3_horizontal_layout.html.twig', 'ZikulaLanguagesModule:Form:radio.html.twig'] %}
+        {{ form_start(form) }}
+
+        <div class="col-xs-12 col-md-3">
+            {{ form_widget(form.mlsettings_multilingual,
+				{'label_attr': {'class': 'btn btn-primary radio-inline' }}) }}
+        </div>
+
+        <div class="col-xs-12 col-md-9">
+            {% if legacy.translator.multiLingualCapable %}
+                <div class="alert alert-success text-left">
+                    <p><strong>{{ __('Zikula Multilingual Capabilities are turned ON') }}</strong></p>
+                    <p class=""> {{ __('Please copy core translations for languages you want from https://github.com/zikula-communities to app/Resources/locale') }}</p>
+                    <p class=""> {{ __('Please turn on Multilingual Capabilities in administration General settings - Localisation settings') }}</p>
+                    <p class=""><strong>{{ __('Please reload routes multilingual settings and clear cache every time you place new translations or delete them') }}</strong></p>
+                </div>
+            {% else %}
+                <div class="alert alert-danger text-left">
+                    <p><strong>{{ __('Zikula Multilingual Capabilities are turned OFF') }}</strong></p>
+                    <p class=""> {{ __('Please copy core translations for languages you want from https://github.com/zikula-communities to app/Resources/locale') }}</p>
+                    <p class=""> {{ __('Please turn on Multilingual Capabilities in administration General settings - Localisation settings') }}</p>
+                    <p class=""><strong>{{ __('Please reload routes multilingual settings and clear cache every time you place new translations or delete them') }}</strong></p>
+                </div>
+            {% endif %}		   	
+        </div>
+
+
+        <h2><i class="fa fa-flag"></i> {{ __('Installed languages') }}</h2>				
+
+        <div class="col-xs-12 col-md-12">  
+            <div class="well well-lg clearfix">           	            
+                <div class="col-md-3">
+                    <!-- Nav tabs -->
+                    <ul class="list-group">
+                        <li role="presentation" class="list-group-item list-group-item-info">
+                            <h3 class="panel-title"> {{ __('Detected languages') }}</h3>
+                        </li>					  
+                        {% for language_key, language_data in installed_languages %} 
+                            <li role="presentation" class="list-group-item clearfix {% if language_key == legacy.translator.langSystemDefault %} active {% endif %}">
+                                <a class="col-md-6" href="#language_{{ language_key }}" aria-controls="home_{{ language_key }}" role="pill" data-toggle="tab">{{ language_data.name}}</a>
+
+                                {% if language_key ==legacy.translator.langSystemDefault %}
+                                    <a class="col-md-1 pull-right" ><i class="fa fa-check"> </i><a/>
+                                    {% endif %}
+
+                                    {% if language_key != 'en' %}
+                                        <a class="col-md-1 pull-right" ><i class="fa fa-trash"> </i><a/>
+                                        {% endif %}
+
+
+                                        </li>
+                                    {% endfor %}
+                                    <li role="presentation" class="list-group-item">
+                                        <a class="btn btn-info btn-sm" href="{#{ path('zikulabreakitmodule_translations_index', {_locale:language_installed}) }#}">{{ __('Add new language') }}</a>
+                                    </li>
+                                    </ul>	
+
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">{{ __('Route translation settings') }}</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            Panel content
+                                        </div>
+                                    </div> 	  
+
+                                    <div class="col-md-12">{{ form_widget(form.save,
+					{'attr': {'class': 'btn btn-info pull-right'}}) }}
+                                    </div>  	  
+
+                                    </div>
+                                    <div class="col-md-9">
+                                        <!-- Tab panes -->
+                                        <div class="tab-content">
+                                            {% for language_key, language_data in installed_languages %} 
+                                                <div role="tabpanel" class="tab-pane {% if language_key == legacy.translator.langSystemDefault %} active{% endif %}" id="language_{{ language_key}}">
+                                                    <div class="panel panel-default">
+                                                        <div class="panel-body">
+                                                            <h2>{{ language_data.name }} - <small>{% if language_key == legacy.translator.langSystemDefault %}<i class="fa fa-check"> </i> {{ __('Default language') }} {% else %} {{ __('Set to default') }}  {% endif %}</small></h2>
+                                                            <div class="col-md-12">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <table class="table">	
+                                                                    <tr>
+                                                                        <th>{{ __('Language setting')}}</th>
+                                                                        <th>{{ __('Value')}}</th>
+                                                                    </tr>				    		
+                                                                    {% set localeData = language_data.data %}			    
+                                                                    <tr><td>{{ __('Language direction')}} :</td> <td>{{ localeData.getLanguage_direction() }}</td></tr>
+                                                                    <tr><td>{{ __('Decimal point')}} :</td> <td> {{ localeData.getDecimal_point() }}</td></tr>
+                                                                    <tr><td> {{ __('Thousands sep')}} :</td> <td> {{ localeData.getThousands_sep() }}</td></tr>
+                                                                    <tr><td> {{ __('Int curr symbol')}} :</td> <td> {{ localeData.getInt_curr_symbol() }}</td></tr>
+                                                                    <tr><td> {{ __('Currency symbol')}} :</td> <td> {{ localeData.getCurrency_symbol() }}</td></tr>
+                                                                    <tr><td> {{ __('Mon decimal point')}} </td> <td> {{ localeData.getMon_decimal_point() }}</td></tr>
+                                                                    <tr><td> {{ __('Mon_thousands sep')}} :</td> <td> {{ localeData.getMon_thousands_sep() }}</td></tr>
+                                                                    <tr><td> {{ __('Positive sign')}} :</td> <td> {{ localeData.getPositive_sign() }}</td></tr>
+                                                                    <tr><td> {{ __('Negative sign')}} :</td> <td> {{ localeData.getNegative_sign() }}</td></tr>
+                                                                    <tr><td> {{ __('Int frac digits')}} :</td> <td> {{ localeData.getInt_frac_digits() }}</td></tr>
+                                                                    <tr><td> {{ __('Frac digits')}} :</td> <td> {{ localeData.getFrac_digits() }}</td></tr>
+                                                                    <tr><td> {{ __('P cs precedes')}} :</td> <td> {{ localeData.getP_cs_precedes() }}</td></tr>
+                                                                    <tr><td> {{ __('P sep by space')}} :</td> <td> {{ localeData.getP_sep_by_space() }}</td></tr>
+                                                                    <tr><td> {{ __('N cs precedes')}} :</td> <td> {{ localeData.getN_cs_precedes() }}</td></tr>
+                                                                    <tr><td> {{ __('N sep by space')}} :</td> <td> {{ localeData.getN_sep_by_space() }}</td></tr>
+                                                                    <tr><td> {{ __('P sign posn')}} :</td> <td> {{ localeData.getP_sign_posn() }}</td></tr>
+                                                                    <tr><td> {{ __('N sign posn')}} :</td> <td> {{ localeData.getN_sign_posn() }}</td></tr>
+                                                                    <tr><td> {{ __('First weekday')}} :</td> <td> {{ localeData.getFirstweekday() }}</td></tr>
+                                                                    <tr><td> {{ __('Timeformat')}} :</td> <td> {{ localeData.getTimeformat() }}</td></tr>
+                                                                    <tr><td> {{ __('Grouping')}} :</td> <td> {#{ localeData.getGrouping() }#}</td></tr>
+                                                                    <tr><td> {{ __('Mon grouping')}} :</td> <td> {#{ localeData.getMon_grouping() }#}</td></tr>								
+                                                                </table>	
+                                                            </div>
+
+                                                            <div class="col-md-6">			    			    
+                                                                <table class="table">
+                                                                    <tr>
+                                                                        <th>{{ __('Language translation')}}</th>
+                                                                        <th>{{ __('Status')}}</th>
+                                                                    </tr>
+                                                                    <tr><td>  {{ __('Zikula')}} </td> <td> <i class="fa fa-check-circle"></i></td></tr>
+                                                                    <tr><td> {{ __('Zikula js')}} </td> <td>  <i class="fa fa-check-circle"></i></td></tr>
+                                                                </table>		
+                                                            </div>																			
+                                                        </div>
+                                                    </div>				    
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>                                                                    
+
+                                    </div>	   
+                                    </div>			
+
+                                    {{ form_end(form) }}                  
+                                    </div>
+                                    </div>
+                                    {# jquery autoincluded see \JCSSUtil::prepareJavascripts #}
+                                    {% javascripts '@ZikulaLanguagesModule/Resources/public/js/*' %}
+                                    <script type="text/javascript" src="{{ asset_url }}"></script>
+                                    {% endjavascripts %}
+                                    {#{ render(controller('ZikulaAdminModule:AdminInterface:footer')) }#}

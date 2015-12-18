@@ -1,0 +1,12 @@
+services:
+    zikula_languages_module.link_container:
+        class: Zikula\LanguagesModule\Container\LinkContainer
+        lazy: true
+        tags:
+            - { name: zikula.link_container }
+        arguments: [@router, @translator, @zikula_extensions_module.api.variable]
+    zikula_languages_module.form.type.settings:
+        class: Zikula\LanguagesModule\Form\Type\SettingsType
+        tags:
+            - { name: form.type, alias: zikulalanguagesmodule_settingstype }
+
