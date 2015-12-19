@@ -19,7 +19,7 @@
 	},
 	"extra" : {
 		"zikula" : {
-			"core-compatibility" : ">=1.4.2",
+			"core-compatibility" : ">=1.4.1",
 			"class" : "Zikula\\LanguagesModule\\ZikulaLanguagesModule",
 			"displayname" : "Languages",
 			"url" : "languages",
