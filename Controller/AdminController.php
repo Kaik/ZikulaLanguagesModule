@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Zikula\Core\Theme\Annotation\Theme;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 /**
  * @Route("/admin")
@@ -45,40 +47,36 @@ class AdminController extends AbstractController
      */
     public function configAction(Request $request)
     {
-        //legacy
-        $legacy = array();
-        $legacy['translator'] = \ZLanguage::getInstance();
-        $legacy['translator']->bindModuleDomain($this->name);
-        $legacy['locale'] = \ZLanguage::getLocale();
-        
-        $legacy['installed_languages'] = \ZLanguage::getInstalledLanguages();
-		$installed_languages = array();
-		foreach($legacy['installed_languages'] as $langCode){
-			$installed_languages[$langCode]['name'] = \ZLanguage::getLanguageName($langCode);
-			$installed_languages[$langCode]['data'] = new \ZLocale($langCode); 
-			
-		}
-        
-        
-        
+        // convert to class
+        $languages_manager = [];
+        //get intance
+        $languages_manager['core'] = \ZLanguage::getInstance();
+        //bind domain
+        $languages_manager['core']->bindModuleDomain($this->name);
+        //locale cuurent detected
+        $languages_manager['locale'] = \ZLanguage::getLocale();
+        //installed languages + data              
+        $installed_languages = \ZLanguage::getInstalledLanguages();
+        $langs_data = [];
+	foreach($installed_languages as $langCode){
+		$langs_data[$langCode]['name'] = \ZLanguage::getLanguageName($langCode);
+		$langs_data[$langCode]['data'] = new \ZLocale($langCode); 			
+	}   
+        $languages_manager['installed'] = $langs_data;     
         //symfony
-        $symfony['translator'] = $this->container->get('translator');
-        $symfony['locale'] = $symfony['translator']->getLocale();
-
-        
+        $languages_manager['translator'] = $this->container->get('translator');    
+        $languages_manager['dir_access'] = is_writable('app/Resources/locale');
+        // ml settings todo add real settings getter
         $settings = array('mlsettings_language_i18n' => 'en',
         		'mlsettings_multilingual' => 1,
         		'mlsettings_language_detect' => 0,
-        		'mlsettings_languageurl' => 0);
-        
-        
+        		'mlsettings_languageurl' => 0);     
         $form = $this->createForm('zikulalanguagesmodule_settingstype', $settings, array(
         	//	'action' => $this->generateUrl('target_route'),
         		'method' => 'GET',
         ));
         
         /**
-
         $form->handleRequest($request);
         if ($form->isValid()) {
         	$data = $form->getData();
@@ -89,15 +87,10 @@ class AdminController extends AbstractController
         }
     	**/
         
-
-        
-        
         $request->attributes->set('_legacy', true); // forces template to render inside old theme
         return $this->render('ZikulaLanguagesModule:Admin:config.html.twig',
             array('form' => $form->createView(),
-                'legacy' => $legacy,
-            	'installed_languages' => $installed_languages,
-                'symfony' => $symfony
+                'manager' => $languages_manager
             ));
     }
     
@@ -111,10 +104,14 @@ class AdminController extends AbstractController
     public function newlanguageAction(Request $request)
     {
         
+        $form = $this->createForm('zikulalanguagesmodule_languagetype', array(), array(
+        	//	'action' => $this->generateUrl('target_route'),
+        		'method' => 'GET',
+        ));
         
         $request->attributes->set('_legacy', true); // forces template to render inside old theme
         return $this->render('ZikulaLanguagesModule:Admin:newlanguage.html.twig',
-            array('language_select' => \ZLanguage::countryMap()
+            array('form' => $form->createView()
             ));
     }    
 }

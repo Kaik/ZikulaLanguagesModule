@@ -1,24 +1,25 @@
-{#{ render(controller('ZikulaAdminModule:AdminInterface:header')) }#}
+{{ render(controller('ZikulaAdminModule:Admin:adminheader')) }}
 {{ pageAddAsset('stylesheet', zasset('@ZikulaLanguagesModule:css/style.css')) }}
 <div class="container-fluid">
     <div class="row">
-        <h2><i class="fa fa-flag"></i> {{ __('Multilingual settings') }}</h2>
-        {{ showflashes() }}       
-        {% form_theme form with ['bootstrap_3_horizontal_layout.html.twig', 'ZikulaLanguagesModule:Form:radio.html.twig'] %}
-        {{ form_start(form) }}
+        <div class="col-xs-12 col-md-12">  
+            {{ dump() }}
+            <div class="well well-lg clearfix"> 
+            <h2><i class="fa fa-wrench"></i> {{ __('Multilingual settings') }}</h2>
+            {{ showflashes() }}       
+            {% form_theme form with ['bootstrap_3_horizontal_layout.html.twig', 'ZikulaLanguagesModule:Form:radio.html.twig'] %}
+            {{ form_start(form) }}
 
-        <div class="col-xs-12 col-md-3">
+            <div class="col-xs-12 col-md-3">
             {{ form_widget(form.mlsettings_multilingual,
 				{'label_attr': {'class': 'btn btn-primary radio-inline' }}) }}
-        </div>
+             </div>
 
         <div class="col-xs-12 col-md-9">
-            {% if legacy.translator.multiLingualCapable %}
+            {% if manager.core.multiLingualCapable %}
                 <div class="alert alert-success text-left">
                     <p><strong>{{ __('Zikula Multilingual Capabilities are turned ON') }}</strong></p>
-                    <p class=""> {{ __('Please copy core translations for languages you want from https://github.com/zikula-communities to app/Resources/locale') }}</p>
-                    <p class=""> {{ __('Please turn on Multilingual Capabilities in administration General settings - Localisation settings') }}</p>
-                    <p class=""><strong>{{ __('Please reload routes multilingual settings and clear cache every time you place new translations or delete them') }}</strong></p>
+                     <p class=""><strong>{{ __('Please reload routes multilingual settings and clear cache every time you place new translations or delete them') }}</strong></p>
                 </div>
             {% else %}
                 <div class="alert alert-danger text-left">
@@ -31,21 +32,18 @@
         </div>
 
 
-        <h2><i class="fa fa-flag"></i> {{ __('Installed languages') }}</h2>				
-
-        <div class="col-xs-12 col-md-12">  
-            <div class="well well-lg clearfix">           	            
+        <h2><i class="fa fa-flag"></i> {{ __('Languages manager') }}</h2>	               
                 <div class="col-md-3">
                     <!-- Nav tabs -->
                     <ul class="list-group">
                         <li role="presentation" class="list-group-item list-group-item-info">
                             <h3 class="panel-title"> {{ __('Detected languages') }}</h3>
                         </li>					  
-                        {% for language_key, language_data in installed_languages %} 
-                            <li role="presentation" class="list-group-item clearfix {% if language_key == legacy.translator.langSystemDefault %} active {% endif %}">
+                        {% for language_key, language_data in manager.installed %} 
+                            <li role="presentation" class="list-group-item clearfix {% if language_key == manager.core.langSystemDefault %} active {% endif %}">
                                 <a class="col-md-6" href="#language_{{ language_key }}" aria-controls="home_{{ language_key }}" role="pill" data-toggle="tab">{{ language_data.name}}</a>
 
-                                {% if language_key ==legacy.translator.langSystemDefault %}
+                                {% if language_key == manager.core.langSystemDefault %}
                                     <a class="col-md-1 pull-right" ><i class="fa fa-check"> </i><a/>
                                     {% endif %}
 
@@ -77,11 +75,11 @@
                                     <div class="col-md-9">
                                         <!-- Tab panes -->
                                         <div class="tab-content">
-                                            {% for language_key, language_data in installed_languages %} 
-                                                <div role="tabpanel" class="tab-pane {% if language_key == legacy.translator.langSystemDefault %} active{% endif %}" id="language_{{ language_key}}">
+                                            {% for language_key, language_data in manager.installed %} 
+                                                <div role="tabpanel" class="tab-pane {% if language_key == manager.core.langSystemDefault %} active{% endif %}" id="language_{{ language_key}}">
                                                     <div class="panel panel-default">
                                                         <div class="panel-body">
-                                                            <h2>{{ language_data.name }} - <small>{% if language_key == legacy.translator.langSystemDefault %}<i class="fa fa-check"> </i> {{ __('Default language') }} {% else %} {{ __('Set to default') }}  {% endif %}</small></h2>
+                                                            <h2>{{ language_data.name }} - <small>{% if language_key == manager.core.langSystemDefault %}<i class="fa fa-check"> </i> {{ __('Default language') }} {% else %} {{ __('Set to default') }}  {% endif %}</small></h2>
                                                             <div class="col-md-12">
                                                             </div>
                                                             <div class="col-md-6">
@@ -114,7 +112,7 @@
                                                                     <tr><td> {{ __('Mon grouping')}} :</td> <td> {#{ localeData.getMon_grouping() }#}</td></tr>								
                                                                 </table>
                                                                 <div class="col-md-12">
-                                                                    <a class="btn btn-warning btn-sm" id="language_manager_edit_language" href="{#{ path('zikulabreakitmodule_translations_index', {_locale:language_installed}) }#}">{{ __('Edit language settings') }}</a>
+                                                                    <a class="btn btn-warning btn-sm" id="language_manager_edit_language" href="#">{{ __('Edit language settings') }}</a>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6">			    			    
@@ -133,14 +131,14 @@
                                             {% endfor %}
                                         </div>
                                     </div>                                                                    
-
+                                    {{ form_end(form) }}   
                                     </div>	   
                                     </div>			
 
-                                    {{ form_end(form) }}                  
+               
                                     </div>
                                     </div>
                                     {# jquery autoincluded see \JCSSUtil::prepareJavascripts #}
                                     {{ pageAddAsset('javascript', zasset('@ZikulaLanguagesModule:js/Zikula.Languages.Manager.js')) }} 
-                                    {#{ render(controller('ZikulaAdminModule:AdminInterface:footer')) }#}
                                     {{ include('ZikulaLanguagesModule:Admin:modal.html.twig') }}
+                                    {{ render(controller('ZikulaAdminModule:Admin:adminfooter')) }}

@@ -1,4 +1,5 @@
-{# empty Twig template #}
-test ok
-
+            {{ showflashes() }}       
+            {% form_theme form with ['bootstrap_3_horizontal_layout.html.twig', 'ZikulaLanguagesModule:Form:radio.html.twig'] %}
+            {{ form_start(form) }}
+            {{ form_end(form) }}   
 {{ dump() }}

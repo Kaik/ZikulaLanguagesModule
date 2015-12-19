@@ -9,4 +9,8 @@ services:
         class: Zikula\LanguagesModule\Form\Type\SettingsType
         tags:
             - { name: form.type, alias: zikulalanguagesmodule_settingstype }
+    zikula_languages_module.form.type.language:
+        class: Zikula\LanguagesModule\Form\Type\LanguageType
+        tags:
+            - { name: form.type, alias: zikulalanguagesmodule_languagetype }
 
