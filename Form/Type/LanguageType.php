@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright Zikula Foundation 2009 - Zikula Application Framework
  *
@@ -6,7 +7,7 @@
  * Contributor Agreements and licensed to You under the following license:
  *
  * @license GNU/LGPLv3 (or at your option, any later version).
-  *
+ *
  * Please see the NOTICE file distributed with this source code for further
  * information regarding copyright and licensing.
  */
@@ -16,37 +17,64 @@ namespace Zikula\LanguagesModule\Form\Type;
 use Symfony\Component\Form\AbstractType as SymfonyAbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Zikula\Common\I18n\TranslatableInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Zikula\LanguagesModule\Form\Type\LocaleType;
 
+class LanguageType extends SymfonyAbstractType implements TranslatableInterface {
 
-class LanguageType extends SymfonyAbstractType implements TranslatableInterface
-{
     protected $domain;
-    
-    public function __construct()
-    {
+
+    public function __construct() {
         $this->domain = 'zikula';
     }
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
+
+    public function buildForm(FormBuilderInterface $builder, array $options) {
+        
+        // remove from language map installed languages
+        
         $builder
-        	->add('mlsettings_multilingual', 'choice', array(
-        		'choices' => \ZLanguage::countryMap(),
-        		'multiple' => false,
-        		'expanded' => false,
-        		'required' => true
-        	))                
-            ->add('save', 'submit', [
+                ->add('mlsettings_multilingual', 'choice', array(
+                    'choices' => \ZLanguage::languageMap(),
+                    'multiple' => false,
+                    'expanded' => false,
+                    'required' => true,
+                    'label' => $this->__('Select language'),
+                ))
+                
+                ->add('locale', 'collection', array(
+                        'type' => new LocaleType(),
+                        'mapped' => true
+                ))
+                
+        ;
+
+        if ($options['isXmlHttpRequest'] == false) {
+            $builder->add('save', 'submit', [
                 'label' => $this->__('Save'),
                 'attr' => [
                     'class' => 'btn-success'
                 ]
-            ])
-        ;
+            ]);
+        }
     }
-    public function getName()
+    
+    /**
+     * OptionsResolverInterface is @deprecated and is supposed to be replaced by
+     * OptionsResolver but docs not clear on implementation
+     *
+     * @param OptionsResolver $resolver
+     */
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
+        $resolver->setDefaults(array(
+            'isXmlHttpRequest' => false,
+        ));
+    }   
+
+    public function getName() {
         return 'zikulalanguagesmodule_languagetype';
     }
+
     /**
      * singular translation for modules.
      *
@@ -54,10 +82,10 @@ class LanguageType extends SymfonyAbstractType implements TranslatableInterface
      *
      * @return string
      */
-    public function __($msg)
-    {
+    public function __($msg) {
         return __($msg, $this->domain);
     }
+
     /**
      * Plural translations for modules.
      *
@@ -67,10 +95,10 @@ class LanguageType extends SymfonyAbstractType implements TranslatableInterface
      *
      * @return string
      */
-    public function _n($m1, $m2, $n)
-    {
+    public function _n($m1, $m2, $n) {
         return _n($m1, $m2, $n, $this->domain);
     }
+
     /**
      * Format translations for modules.
      *
@@ -79,10 +107,10 @@ class LanguageType extends SymfonyAbstractType implements TranslatableInterface
      *
      * @return string
      */
-    public function __f($msg, $param)
-    {
+    public function __f($msg, $param) {
         return __f($msg, $param, $this->domain);
     }
+
     /**
      * Format pural translations for modules.
      *
@@ -93,8 +121,8 @@ class LanguageType extends SymfonyAbstractType implements TranslatableInterface
      *
      * @return string
      */
-    public function _fn($m1, $m2, $n, $param)
-    {
+    public function _fn($m1, $m2, $n, $param) {
         return _fn($m1, $m2, $n, $param, $this->domain);
     }
+
 }
