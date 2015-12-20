@@ -12,7 +12,6 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-xs-12 col-md-12">  
-            {{ dump() }}
             <div id="languages_manager" class="well well-lg clearfix"> 
                 <h2><i class="fa fa-wrench"></i> {{ __('Multilingual settings') }}</h2>
                 {{ showflashes() }}       
@@ -64,7 +63,7 @@
                                         </li>
                                     {% endfor %}
                                     <li role="presentation" class="list-group-item">
-                                        <a class="add_language btn btn-info btn-sm" href="{#{ path('zikulabreakitmodule_translations_index', {_locale:language_installed}) }#}">{{ __('Add new language') }}</a>
+                                        <a class="edit_language btn btn-info btn-sm" href="#">{{ __('Add new language') }}</a>
                                     </li>
                                     </ul>	
 

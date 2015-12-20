@@ -35,55 +35,7 @@ Zikula.Languages.Manager = Zikula.Languages.Manager || {};
         console.log(Zikula.Languages);
         console.log(config);
     };
-    
-    manager.addLanguage = function() {
-        var pars = {};
-            
-        $.ajax({
-            type: "GET",
-            url: Routing.generate('zikulalanguagesmodule_admin_newlanguage'),
-            data: pars
-        }).success(function (result) {
-            var html = result;
-            manager.view.setModalTitle('Add new language');
-            manager.view.setModalContent(html);
-            manager.view.setModalButtonSave();                       
-            manager.view.openModal();
-        }).error(function (result) {
-            //manager.view.displayError( result.status + ': ' + result.statusText);
-             //manager.view.openModal();
-        }).always(function () {
-            //manager.view.hideBusy();           
-        });
-        
-        
-    };
-    
-    manager.saveLanguage = function() {
-                
-        $.ajax({
-            type: "POST",
-            url: Routing.generate('zikulalanguagesmodule_admin_newlanguage'),
-            data: $('form[name="zikulalanguagesmodule_languagetype"]').serialize()
-        }).success(function (result) {
-            var html = result;
-            console.log(html);
-            /*
-            manager.view.setModalTitle('Add new language');
-            manager.view.setModalContent(html);
-            manager.view.setModalButtonSave();                       
-            manager.view.openModal();
-            */
-        }).error(function (result) {
-            //manager.view.displayError( result.status + ': ' + result.statusText);
-             //manager.view.openModal();
-        }).always(function () {
-            //manager.view.hideBusy();           
-        });
-        
-        
-    };  
-    
+   
     manager.editLanguage = function(language_code) {
         var pars = {'language_code':language_code};
             
@@ -95,7 +47,7 @@ Zikula.Languages.Manager = Zikula.Languages.Manager || {};
             var html = result;
             manager.view.setModalTitle('Edit language');
             manager.view.setModalContent(html);
-            manager.view.setModalButtonSave();                       
+            manager.view.setModalButtonSave(language_code);                       
             manager.view.openModal();
         }).error(function (result) {
             //manager.view.displayError( result.status + ': ' + result.statusText);
@@ -107,6 +59,27 @@ Zikula.Languages.Manager = Zikula.Languages.Manager || {};
         
     };    
     
+    manager.saveLanguage = function(language_code) {
+                
+        $.ajax({
+            type: "POST",
+            url: Routing.generate('zikulalanguagesmodule_admin_editlanguage'),
+            data: $('form[name="zikulalanguagesmodule_languagetype"]').serialize() + "&language_code=" + language_code
+        }).success(function (result) {
+            var html = result;
+            console.log(html);                  
+            manager.view.closeModal();
+            
+        }).error(function (result) {
+            //manager.view.displayError( result.status + ': ' + result.statusText);
+             //manager.view.openModal();
+        }).always(function () {
+            //manager.view.hideBusy();           
+        });
+        
+        
+    };  
+          
     manager.removeLanguage = function(language_code) {
         var pars = {'language_code':language_code};
             
@@ -122,9 +95,7 @@ Zikula.Languages.Manager = Zikula.Languages.Manager || {};
              //manager.view.openModal();
         }).always(function () {
             //manager.view.hideBusy();           
-        });
-        
-        
+        });   
     };     
     
 
@@ -176,7 +147,7 @@ Zikula.Languages.Manager = Zikula.Languages.Manager || {};
                 $manager.find('a.add_language').each(function () {
                     $(this).on('click', function (e) {
                         e.preventDefault();
-                        manager.addLanguage();
+                        manager.editLanguage(false);
                     });
                 });
                 /* bind add language event */
@@ -222,12 +193,11 @@ Zikula.Languages.Manager = Zikula.Languages.Manager || {};
             function setModalFooter(html) {
                 $modal.find('.modal-footer').html(html);
             } 
-            function setModalButtonSave() {
+            function setModalButtonSave(language_code) {
                 var $buttonSave = $modal.find("button.save");
-                console.log($buttonSave);
                 $buttonSave.click(function (e) {
                     e.preventDefault();
-                    manager.saveLanguage();
+                    manager.saveLanguage(language_code);
                 });
                 $buttonSave.removeClass('hide');
             }
@@ -250,8 +220,7 @@ Zikula.Languages.Manager = Zikula.Languages.Manager || {};
             
             //errors
             function displayError(html) {
-                $msg_box.html('<div class="alert"><a class="close" data-dismiss="alert">×</a><span>' + html + '</span></div>');
-                $msg_box.find('.alert').addClass('alert-danger');
+
             }
             ;
 

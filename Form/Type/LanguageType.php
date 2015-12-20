@@ -34,12 +34,18 @@ class LanguageType extends SymfonyAbstractType implements TranslatableInterface 
         
         // remove from language map installed languages
         
-        $builder
-                ->add('language_code', 'choice', array(
-                    'choices' => $this->manager->getAddLanguageSelectData(),
+        if($options['mode'] == 'edit') {
+            $choices = $this->manager->getAddLanguageSelectData(true);
+        }else{
+            $choices = $this->manager->getAddLanguageSelectData();
+        }
+        
+        $builder->add('language_code', 'choice', array(
+                    'choices' => $choices,
                     'multiple' => false,
                     'expanded' => false,
                     'required' => true,
+                    'mapped' => true,
                     'label' => $this->__('Select language'),
                 ))
                 
@@ -70,6 +76,7 @@ class LanguageType extends SymfonyAbstractType implements TranslatableInterface 
     {
         $resolver->setDefaults(array(
             'isXmlHttpRequest' => false,
+            'mode' => 'add',
         ));
     }   
 

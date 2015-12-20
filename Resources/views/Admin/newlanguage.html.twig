@@ -1,6 +1,8 @@
 {% form_theme form with ['bootstrap_3_layout.html.twig', 'ZikulaLanguagesModule:Form:radio.html.twig'] %}
 {{ form_start(form) }}
+
     {{ form_row(form.language_code) }}
+    
     {{ form_row(form.locale.0.language_direction) }}
     {{ form_row(form.locale.0.firstweekday) }}
     {{ form_row(form.locale.0.timeformat) }}

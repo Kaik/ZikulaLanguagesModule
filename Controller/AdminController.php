@@ -74,43 +74,6 @@ class AdminController extends AbstractController {
     }
 
     /**
-     * @Route("/newlanguage", options={"expose"=true})
-     *
-     * @param Request $request
-     *
-     * @return AjaxResponse
-     */
-    public function newlanguageAction(Request $request) {
-
-        if (!$this->hasPermission('ZikulaLanguagesModule::', '::', ACCESS_ADMIN)) {
-            throw new AccessDeniedException();
-        }
-
-        $data = array('locale' => array($this->get('zikula_languages_module.manager.languages')->getDefaultIniData()));
-        // just to show form 
-        $form = $this->createForm('zikulalanguagesmodule_languagetype', $data, array(
-            //'action' => $this->generateUrl('target_route'),
-            'method' => 'POST',
-            'isXmlHttpRequest' => $request->isXmlHttpRequest(),
-        ));
-
-        if ($request->getMethod() == "POST") {
-            $status['ispost'] = true;
-            $form->handleRequest($request);
-            if ($form->isValid()) {
-                $data = $form->getData();
-                $status['data'] = $this->get('zikula_languages_module.manager.languages')->createLanguage($data);
-                //$this->addFlash('status', $this->__('Settings saved!'));
-            }
-            return new JsonResponse(array('status' => $status));
-        } else {
-            $request->attributes->set('_legacy', true); // forces template to render inside old theme
-            return $this->render('ZikulaLanguagesModule:Admin:newlanguage.html.twig', array('form' => $form->createView()
-            ));
-        }
-    }
-
-    /**
      * @Route("/editlanguage", options={"expose"=true})
      *
      * @param Request $request
@@ -122,26 +85,29 @@ class AdminController extends AbstractController {
         if (!$this->hasPermission('ZikulaLanguagesModule::', '::', ACCESS_ADMIN)) {
             throw new AccessDeniedException();
         }
-
-        $lang_to_edit = $request->query->get('language_code', 'en');
-        $data['language_code'] = $lang_to_edit;
-        $data['locale'] = $this->get('zikula_languages_module.manager.languages')->getLanguageData($lang_to_edit);
-        // just to show form 
-        //var_dump($data);
-        //exit(0);
-        $form = $this->createForm('zikulalanguagesmodule_languagetype', $data, array(
+        
+        $language_code = $request->get('language_code', false);
+        $language = ['language_code' => $language_code];
+        if($language_code === false){
+           $language['locale'] = [$this->get('zikula_languages_module.manager.languages')->getDefaultIniData()];          
+        }else{
+           $language['locale'] = [$this->get('zikula_languages_module.manager.languages')->getLanguageData($language_code)];          
+        }
+        
+        $form = $this->createForm('zikulalanguagesmodule_languagetype', $language, array(
             //'action' => $this->generateUrl('target_route'),
             'method' => 'POST',
+            'mode' => ($language_code === false) ? 'add' : 'edit',
             'isXmlHttpRequest' => $request->isXmlHttpRequest(),
         ));
         if ($request->getMethod() == "POST") {
             $status['ispost'] = true;
             $form->handleRequest($request);
-            if ($form->isValid()) {
+            //if ($form->isValid()) {
                 $data = $form->getData();
-                $status['data'] = $this->get('zikula_languages_module.manager.languages')->updateLanguage($data);
+                $status['data'] = $this->get('zikula_languages_module.manager.languages')->setLanguage($data);
                 //$this->addFlash('status', $this->__('Settings saved!'));
-            }
+           // }
             return new JsonResponse(array('status' => $status));
         } else {
             $request->attributes->set('_legacy', true); // forces template to render inside old theme
