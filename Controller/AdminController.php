@@ -15,7 +15,6 @@
 namespace Zikula\LanguagesModule\Controller;
 
 use Zikula\Core\Controller\AbstractController;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; // used in annotations - do not remove
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method; // used in annotations - do not remove
@@ -26,8 +25,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Zikula\Core\Theme\Annotation\Theme;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 /**
  * @Route("/admin")
@@ -46,25 +43,10 @@ class AdminController extends AbstractController {
      * @throws \Exception of various types
      */
     public function configAction(Request $request) {
-        // convert to class
-        $languages_manager = [];
-        //get intance
-        $languages_manager['core'] = \ZLanguage::getInstance();
-        //bind domain
-        $languages_manager['core']->bindModuleDomain($this->name);
-        //locale cuurent detected
-        $languages_manager['locale'] = \ZLanguage::getLocale();
-        //installed languages + data              
-        $installed_languages = \ZLanguage::getInstalledLanguages();
-        $langs_data = [];
-        foreach ($installed_languages as $langCode) {
-            $langs_data[$langCode]['name'] = \ZLanguage::getLanguageName($langCode);
-            $langs_data[$langCode]['data'] = new \ZLocale($langCode);
+
+        if (!$this->hasPermission('ZikulaLanguagesModule::', '::', ACCESS_ADMIN)) {
+            throw new AccessDeniedException();
         }
-        $languages_manager['installed'] = $langs_data;
-        //symfony
-        $languages_manager['translator'] = $this->container->get('translator');
-        $languages_manager['dir_access'] = is_writable('app/Resources/locale');
         // ml settings todo add real settings getter
         $settings = array('mlsettings_language_i18n' => 'en',
             'mlsettings_multilingual' => 1,
@@ -87,7 +69,7 @@ class AdminController extends AbstractController {
          * */
         $request->attributes->set('_legacy', true); // forces template to render inside old theme
         return $this->render('ZikulaLanguagesModule:Admin:config.html.twig', array('form' => $form->createView(),
-                    'manager' => $languages_manager
+                    'manager' => $this->get('zikula_languages_module.manager.languages')
         ));
     }
 
@@ -100,49 +82,89 @@ class AdminController extends AbstractController {
      */
     public function newlanguageAction(Request $request) {
 
-        //use as default data 
-        $eng_ini = parse_ini_file('app/Resources/locale/en/locale.ini');
-        
-        //var_dump($eng_ini);
-        //exit(0);
-        
-        $data = array('locale' => array($eng_ini));
-        
+        if (!$this->hasPermission('ZikulaLanguagesModule::', '::', ACCESS_ADMIN)) {
+            throw new AccessDeniedException();
+        }
+
+        $data = array('locale' => array($this->get('zikula_languages_module.manager.languages')->getDefaultIniData()));
+        // just to show form 
         $form = $this->createForm('zikulalanguagesmodule_languagetype', $data, array(
-            //	'action' => $this->generateUrl('target_route'),
-            'method' => 'GET',
+            //'action' => $this->generateUrl('target_route'),
+            'method' => 'POST',
             'isXmlHttpRequest' => $request->isXmlHttpRequest(),
         ));
 
-        $request->attributes->set('_legacy', true); // forces template to render inside old theme
-        return $this->render('ZikulaLanguagesModule:Admin:newlanguage.html.twig', array('form' => $form->createView()
-        ));
+        if ($request->getMethod() == "POST") {
+            $status['ispost'] = true;
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+                $data = $form->getData();
+                $status['data'] = $this->get('zikula_languages_module.manager.languages')->createLanguage($data);
+                //$this->addFlash('status', $this->__('Settings saved!'));
+            }
+            return new JsonResponse(array('status' => $status));
+        } else {
+            $request->attributes->set('_legacy', true); // forces template to render inside old theme
+            return $this->render('ZikulaLanguagesModule:Admin:newlanguage.html.twig', array('form' => $form->createView()
+            ));
+        }
     }
 
     /**
-     * @Route("/createlanguage", options={"expose"=true})
+     * @Route("/editlanguage", options={"expose"=true})
      *
      * @param Request $request
      *
      * @return AjaxResponse
      */
-    public function createlanguageAction(Request $request) {
+    public function editlanguageAction(Request $request) {
 
-        $languageToAdd = $request->request->get('language', null);
-               
-        // add language check need to be 2 letters
-        if ($languageToAdd) {
-
-            $fs = new Filesystem();
-            $errors = [];
-            try {
-                $fs->mkdir('app/Resources/locale/' . $languageToAdd);
-            } catch (IOExceptionInterface $e) {
-                $errors[] =  "An error occurred while creating your directory at " . $e->getPath();
-            }
+        if (!$this->hasPermission('ZikulaLanguagesModule::', '::', ACCESS_ADMIN)) {
+            throw new AccessDeniedException();
         }
 
-        return new JsonResponse(array('language' => $languageToAdd,'errors' => $errors,'def_ini' => $eng_ini));
+        $lang_to_edit = $request->query->get('language_code', 'en');
+        $data['language_code'] = $lang_to_edit;
+        $data['locale'] = $this->get('zikula_languages_module.manager.languages')->getLanguageData($lang_to_edit);
+        // just to show form 
+        //var_dump($data);
+        //exit(0);
+        $form = $this->createForm('zikulalanguagesmodule_languagetype', $data, array(
+            //'action' => $this->generateUrl('target_route'),
+            'method' => 'POST',
+            'isXmlHttpRequest' => $request->isXmlHttpRequest(),
+        ));
+        if ($request->getMethod() == "POST") {
+            $status['ispost'] = true;
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+                $data = $form->getData();
+                $status['data'] = $this->get('zikula_languages_module.manager.languages')->updateLanguage($data);
+                //$this->addFlash('status', $this->__('Settings saved!'));
+            }
+            return new JsonResponse(array('status' => $status));
+        } else {
+            $request->attributes->set('_legacy', true); // forces template to render inside old theme
+            return $this->render('ZikulaLanguagesModule:Admin:newlanguage.html.twig', array('form' => $form->createView()
+            ));
+        }
+    }
+
+    /**
+     * @Route("/removelanguage", options={"expose"=true})
+     *
+     * @param Request $request
+     *
+     * @return AjaxResponse
+     */
+    public function removelanguageAction(Request $request) {
+
+        if (!$this->hasPermission('ZikulaLanguagesModule::', '::', ACCESS_ADMIN)) {
+            throw new AccessDeniedException();
+        }
+        $lang_to_remove = $request->request->get('language_code', null);
+        $status['data'] = $this->get('zikula_languages_module.manager.languages')->removeLanguage($lang_to_remove);
+        return new JsonResponse(array('status' => $status));
     }
 
 }

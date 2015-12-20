@@ -23,9 +23,11 @@ use Zikula\LanguagesModule\Form\Type\LocaleType;
 class LanguageType extends SymfonyAbstractType implements TranslatableInterface {
 
     protected $domain;
+    protected $manager;
 
-    public function __construct() {
-        $this->domain = 'zikula';
+    public function __construct($manager) {
+        $this->domain = 'zikulalanguagemodule';
+        $this->manager = $manager;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options) {
@@ -33,8 +35,8 @@ class LanguageType extends SymfonyAbstractType implements TranslatableInterface 
         // remove from language map installed languages
         
         $builder
-                ->add('mlsettings_multilingual', 'choice', array(
-                    'choices' => \ZLanguage::languageMap(),
+                ->add('language_code', 'choice', array(
+                    'choices' => $this->manager->getAddLanguageSelectData(),
                     'multiple' => false,
                     'expanded' => false,
                     'required' => true,

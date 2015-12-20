@@ -5,6 +5,11 @@ services:
         tags:
             - { name: zikula.link_container }
         arguments: [@router, @translator, @zikula_extensions_module.api.variable]
+    zikula_languages_module.manager.languages:
+        class: Zikula\LanguagesModule\Manager\Languages
+        tags:
+            - { name: zikula.languages.manager }
+        arguments: [@translator]
     zikula_languages_module.form.type.settings:
         class: Zikula\LanguagesModule\Form\Type\SettingsType
         tags:
@@ -13,4 +18,5 @@ services:
         class: Zikula\LanguagesModule\Form\Type\LanguageType
         tags:
             - { name: form.type, alias: zikulalanguagesmodule_languagetype }
+        arguments: [@zikula_languages_module.manager.languages]
 

@@ -1,3 +1,25 @@
 {% form_theme form with ['bootstrap_3_layout.html.twig', 'ZikulaLanguagesModule:Form:radio.html.twig'] %}
 {{ form_start(form) }}
+    {{ form_row(form.language_code) }}
+    {{ form_row(form.locale.0.language_direction) }}
+    {{ form_row(form.locale.0.firstweekday) }}
+    {{ form_row(form.locale.0.timeformat) }}
+    {{ form_row(form.locale.0.decimal_point) }}
+    {{ form_row(form.locale.0.thousands_sep) }}
+    {{ form_row(form.locale.0.int_curr_symbol) }}
+    {{ form_row(form.locale.0.currency_symbol) }}
+    {{ form_row(form.locale.0.mon_decimal_point) }}
+    {{ form_row(form.locale.0.mon_thousands_sep) }}
+    {{ form_row(form.locale.0.positive_sign) }}
+    {{ form_row(form.locale.0.negative_sign) }}
+    {{ form_row(form.locale.0.int_frac_digits) }}
+    {{ form_row(form.locale.0.frac_digits) }}
+    {{ form_row(form.locale.0.p_cs_precedes) }} 
+    {{ form_row(form.locale.0.p_sep_by_space) }}
+    {{ form_row(form.locale.0.n_cs_precedes) }} 
+    {{ form_row(form.locale.0.n_sep_by_space) }}
+    {{ form_row(form.locale.0.p_sign_posn) }}
+    {{ form_row(form.locale.0.n_sign_posn) }} 
+    {{ form_row(form.locale.0.grouping) }}
+    {{ form_row(form.locale.0.mon_grouping) }}     
 {{ form_end(form) }}

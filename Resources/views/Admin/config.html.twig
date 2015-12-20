@@ -1,10 +1,19 @@
 {{ render(controller('ZikulaAdminModule:Admin:adminheader')) }}
 {{ pageAddAsset('stylesheet', zasset('@ZikulaLanguagesModule:css/style.css')) }}
+<script>
+(function($) {
+	$(function(){
+            Zikula.Languages.Manager.init({{ manager|json_encode|raw }});
+	});
+})(jQuery);
+</script>
+
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-xs-12 col-md-12">  
             {{ dump() }}
-            <div class="well well-lg clearfix"> 
+            <div id="languages_manager" class="well well-lg clearfix"> 
                 <h2><i class="fa fa-wrench"></i> {{ __('Multilingual settings') }}</h2>
                 {{ showflashes() }}       
                 {% form_theme form with ['bootstrap_3_horizontal_layout.html.twig', 'ZikulaLanguagesModule:Form:radio.html.twig'] %}
@@ -48,14 +57,14 @@
                                     {% endif %}
 
                                     {% if language_key != 'en' %}
-                                        <a class="col-md-1 pull-right" ><i class="fa fa-trash"> </i><a/>
+                                        <a class="remove_language col-md-1 pull-right" data-languagecode="{{ language_key }}" ><i class="fa fa-trash"> </i><a/>
                                         {% endif %}
 
 
                                         </li>
                                     {% endfor %}
                                     <li role="presentation" class="list-group-item">
-                                        <a class="btn btn-info btn-sm" id="language_manager_add_language" href="{#{ path('zikulabreakitmodule_translations_index', {_locale:language_installed}) }#}">{{ __('Add new language') }}</a>
+                                        <a class="add_language btn btn-info btn-sm" href="{#{ path('zikulabreakitmodule_translations_index', {_locale:language_installed}) }#}">{{ __('Add new language') }}</a>
                                     </li>
                                     </ul>	
 
@@ -81,49 +90,14 @@
                                                         <div class="panel-body">
                                                             <h2>{{ language_data.name }} - <small>{% if language_key == manager.core.langSystemDefault %}<i class="fa fa-check"> </i> {{ __('Default language') }} {% else %} {{ __('Set to default') }}  {% endif %}</small></h2>
                                                             <div class="col-md-12">
+                                                                
                                                             </div>
                                                             <div class="col-md-6">
-                                                                <table class="table">	
-                                                                    <tr>
-                                                                        <th>{{ __('Language setting')}}</th>
-                                                                        <th>{{ __('Value')}}</th>
-                                                                    </tr>				    		
-                                                                    {% set localeData = language_data.data %}			    
-                                                                    <tr><td>{{ __('Language direction')}} :</td> <td>{{ localeData.getLanguage_direction() }}</td></tr>
-                                                                    <tr><td>{{ __('Decimal point')}} :</td> <td> {{ localeData.getDecimal_point() }}</td></tr>
-                                                                    <tr><td> {{ __('Thousands sep')}} :</td> <td> {{ localeData.getThousands_sep() }}</td></tr>
-                                                                    <tr><td> {{ __('Int curr symbol')}} :</td> <td> {{ localeData.getInt_curr_symbol() }}</td></tr>
-                                                                    <tr><td> {{ __('Currency symbol')}} :</td> <td> {{ localeData.getCurrency_symbol() }}</td></tr>
-                                                                    <tr><td> {{ __('Mon decimal point')}} </td> <td> {{ localeData.getMon_decimal_point() }}</td></tr>
-                                                                    <tr><td> {{ __('Mon_thousands sep')}} :</td> <td> {{ localeData.getMon_thousands_sep() }}</td></tr>
-                                                                    <tr><td> {{ __('Positive sign')}} :</td> <td> {{ localeData.getPositive_sign() }}</td></tr>
-                                                                    <tr><td> {{ __('Negative sign')}} :</td> <td> {{ localeData.getNegative_sign() }}</td></tr>
-                                                                    <tr><td> {{ __('Int frac digits')}} :</td> <td> {{ localeData.getInt_frac_digits() }}</td></tr>
-                                                                    <tr><td> {{ __('Frac digits')}} :</td> <td> {{ localeData.getFrac_digits() }}</td></tr>
-                                                                    <tr><td> {{ __('P cs precedes')}} :</td> <td> {{ localeData.getP_cs_precedes() }}</td></tr>
-                                                                    <tr><td> {{ __('P sep by space')}} :</td> <td> {{ localeData.getP_sep_by_space() }}</td></tr>
-                                                                    <tr><td> {{ __('N cs precedes')}} :</td> <td> {{ localeData.getN_cs_precedes() }}</td></tr>
-                                                                    <tr><td> {{ __('N sep by space')}} :</td> <td> {{ localeData.getN_sep_by_space() }}</td></tr>
-                                                                    <tr><td> {{ __('P sign posn')}} :</td> <td> {{ localeData.getP_sign_posn() }}</td></tr>
-                                                                    <tr><td> {{ __('N sign posn')}} :</td> <td> {{ localeData.getN_sign_posn() }}</td></tr>
-                                                                    <tr><td> {{ __('First weekday')}} :</td> <td> {{ localeData.getFirstweekday() }}</td></tr>
-                                                                    <tr><td> {{ __('Timeformat')}} :</td> <td> {{ localeData.getTimeformat() }}</td></tr>
-                                                                    <tr><td> {{ __('Grouping')}} :</td> <td> {#{ localeData.getGrouping() }#}</td></tr>
-                                                                    <tr><td> {{ __('Mon grouping')}} :</td> <td> {#{ localeData.getMon_grouping() }#}</td></tr>								
-                                                                </table>
-                                                                <div class="col-md-12">
-                                                                    <a class="btn btn-warning btn-sm" id="language_manager_edit_language" href="#">{{ __('Edit language settings') }}</a>
-                                                                </div>
+                                                            {{ include('ZikulaLanguagesModule:Admin:languagedetails.html.twig') }}    
+                                                            <a class="edit_language btn btn-warning btn-sm" data-languagecode="{{ language_key }}" href="#">{{ __('Edit language settings') }}</a>
                                                             </div>
                                                             <div class="col-md-6">			    			    
-                                                                <table class="table">
-                                                                    <tr>
-                                                                        <th>{{ __('Language translation')}}</th>
-                                                                        <th>{{ __('Status')}}</th>
-                                                                    </tr>
-                                                                    <tr><td>  {{ __('Zikula')}} </td> <td> <i class="fa fa-check-circle"></i></td></tr>
-                                                                    <tr><td> {{ __('Zikula js')}} </td> <td>  <i class="fa fa-check-circle"></i></td></tr>
-                                                                </table>		
+                                                            {{ include('ZikulaLanguagesModule:Admin:translations.html.twig') }}
                                                             </div>																			
                                                         </div>
                                                     </div>				    
