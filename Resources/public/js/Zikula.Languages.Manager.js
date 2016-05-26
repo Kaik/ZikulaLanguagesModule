@@ -38,7 +38,7 @@ Zikula.Languages.Manager = Zikula.Languages.Manager || {};
    
     manager.editLanguage = function(language_code) {
         var pars = {'language_code':language_code};
-            
+            console.log('zzz');
         $.ajax({
             type: "GET",
             url: Routing.generate('zikulalanguagesmodule_admin_editlanguage'),

@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Zikula\Core\Theme\Annotation\Theme;
+use Zikula\ThemeModule\Engine\Annotation\Theme;
 
 /**
  * @Route("/admin")
@@ -85,15 +85,15 @@ class AdminController extends AbstractController {
         if (!$this->hasPermission('ZikulaLanguagesModule::', '::', ACCESS_ADMIN)) {
             throw new AccessDeniedException();
         }
-        
+
         $language_code = $request->get('language_code', false);
         $language = ['language_code' => $language_code];
-        if($language_code === false){
-           $language['locale'] = [$this->get('zikula_languages_module.manager.languages')->getDefaultIniData()];          
-        }else{
-           $language['locale'] = [$this->get('zikula_languages_module.manager.languages')->getLanguageData($language_code)];          
+        if ($language_code === false) {
+            $language['locale'] = [$this->get('zikula_languages_module.manager.languages')->getDefaultIniData()];
+        } else {
+            $language['locale'] = [$this->get('zikula_languages_module.manager.languages')->getLanguageData($language_code)];
         }
-        
+
         $form = $this->createForm('zikulalanguagesmodule_languagetype', $language, array(
             //'action' => $this->generateUrl('target_route'),
             'method' => 'POST',
@@ -104,16 +104,16 @@ class AdminController extends AbstractController {
             $status['ispost'] = true;
             $form->handleRequest($request);
             //if ($form->isValid()) {
-                $data = $form->getData();
-                $status['data'] = $this->get('zikula_languages_module.manager.languages')->setLanguage($data);
-                //$this->addFlash('status', $this->__('Settings saved!'));
-           // }
+            $data = $form->getData();
+            $status['data'] = $this->get('zikula_languages_module.manager.languages')->setLanguage($data);
+            //$this->addFlash('status', $this->__('Settings saved!'));
+            // }
             return new JsonResponse(array('status' => $status));
         } else {
             $request->attributes->set('_legacy', true); // forces template to render inside old theme
             return $this->render('ZikulaLanguagesModule:Admin:newlanguage.html.twig', array('form' => $form->createView()
             ));
-        }
+        }   
     }
 
     /**
